@@ -7,7 +7,8 @@ Don't forget add env variables: ```APP_NAME```, ```PASTEBIN_API_KEY``` and ```TE
 
 ## License
 
-```MIT License
+```
+MIT License
 
 Copyright (c) 2021 Kirill Zhukov
 
