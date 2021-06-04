@@ -49,7 +49,7 @@ def detect_language(text):
 
 
 @bot.message_handler(func=lambda message: True)
-def echo_all(message):
+def handle_message(message):
     link = get_paste_url(message.text, detect_language(message.text))
     if link.startswith("https://"):
         bot.send_message(message.chat.id, link)
@@ -57,13 +57,20 @@ def echo_all(message):
         bot.send_message(message.chat.id, "Error, sorry:(")
 
 
-@server.route("/bot", methods=['POST'])
+@server.route('/' + TELEGRAM_API_KEY, methods=['POST'])
 def get_message():
-    bot.process_new_updates([telebot.types.Update.de_json(request.stream.read().decode("utf-8"))])
+    json_string = request.get_data().decode('utf-8')
+    update = telebot.types.Update.de_json(json_string)
+    bot.process_new_updates([update])
     return "!", 200
 
 
-bot.remove_webhook()
-bot.set_webhook(url="https://{}.herokuapp.com/bot".format(APP_NAME))
-server.run(host="0.0.0.0", port=os.environ.get('PORT', 5000))
-server = Flask(__name__)
+@server.route("/")
+def webhook():
+    bot.remove_webhook()
+    bot.set_webhook(url='https://{}.herokuapp.com/{}'.format(APP_NAME, TELEGRAM_API_KEY))
+    return "!", 200
+
+
+if __name__ == "__main__":
+    server.run(host="0.0.0.0", port=int(os.environ.get('PORT', 5000)))
